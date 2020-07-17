@@ -1,7 +1,7 @@
-from .buy import buy
+from .ticketer import Ticketer
 
 
 async def setup(bot):
-    cog = buy()
+    cog = Ticketer()
     await cog.register_casetypes()
     bot.add_cog(cog)

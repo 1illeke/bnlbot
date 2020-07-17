@@ -4,8 +4,8 @@ from datetime import datetime
 from redbot.core import commands, checks, Config, modlog
 
 
-class buy(commands.Cog):
-    """buy"""
+class Ticketer(commands.Cog):
+    """Ticketer"""
 
     def __init__(self):
         self.config = Config.get_conf(self, 200730042020, force_registration=True)
@@ -37,23 +37,23 @@ class buy(commands.Cog):
 
     @commands.group()
     @checks.admin()
-    async def buy(self, ctx):
-        """All buy settings."""
+    async def ticketer(self, ctx):
+        """All ticketer settings."""
         pass
 
-    @buy.command()
+    @ticketer.command()
     async def channel(self, ctx, channel: discord.TextChannel):
         """Set the ticket-management channel."""
         await self.config.guild(ctx.guild).channel.set(channel.id)
         await ctx.send(f"Channel has been set to {channel.mention}.")
 
-    @buy.command()
+    @ticketer.command()
     async def role(self, ctx, role: discord.Role):
         """Set the role for ticket managers."""
         await self.config.guild(ctx.guild).role.set(role.id)
         await ctx.send(f"Ticket manager role has been set to {role.mention}.")
 
-    @buy.group()
+    @ticketer.group()
     async def category(self, ctx):
         """Set the categories for open and closed tickets."""
 
@@ -69,13 +69,13 @@ class buy(commands.Cog):
         await self.config.guild(ctx.guild).closed_category.set(category.id)
         await ctx.send(f"Category for closed tickets has been set to {category.mention}")
 
-    @buy.command()
+    @ticketer.command()
     async def message(self, ctx, *, message: str):
         """Set the message that is shown at the start of each ticket channel."""
         await self.config.guild(ctx.guild).message.set(message)
         await ctx.send(f"The message has been set to ``{message}``.")
 
-    @buy.command()
+    @ticketer.command()
     async def counter(self, ctx, true_or_false: bool):
         """Toggle if the ticket channels should be named using a user's name and ID or counting upwards starting at 0."""
         await self.config.guild(ctx.guild).use_counter.set(true_or_false)
@@ -83,9 +83,9 @@ class buy(commands.Cog):
             "The counter has been {}.".format("enabled" if true_or_false else "disabled")
         )
 
-    @buy.command()
+    @ticketer.command()
     async def modlog(self, ctx, true_or_false: bool):
-        """Decide if buy should log to modlog."""
+        """Decide if ticketer should log to modlog."""
         await self.config.guild(ctx.guild).modlog.set(true_or_false)
         await ctx.send(
             "Logging to modlog has been {}.".format("enabled" if true_or_false else "disabled")
@@ -96,19 +96,19 @@ class buy(commands.Cog):
         settings = await self.config.guild(ctx.guild).all()
         if not settings["role"]:
             role = await ctx.guild.create_role(
-                name="Ticketmanagers", hoist=True, mentionable=False, reason="buy quicksetup"
+                name="Ticketmanagers", hoist=True, mentionable=False, reason="Ticketer quicksetup"
             )
             await self.config.guild(ctx.guild).role.set(role.id)
             await ctx.send("Ticket-manager role created.")
         if not settings["open_category"]:
             category = await ctx.guild.create_category(
-                name="Open-tickets", reason="buy quicksetup"
+                name="Open-tickets", reason="Ticketer quicksetup"
             )
             await self.config.guild(ctx.guild).open_category.set(category.id)
             await ctx.send("Category for open tickets created.")
         if not settings["closed_category"]:
             category = await ctx.guild.create_category(
-                name="Closed-tickets", reason="buy quicksetup"
+                name="Closed-tickets", reason="Ticketer quicksetup"
             )
             await self.config.guild(ctx.guild).closed_category.set(category.id)
             await ctx.send("Category for closed tickets created.")
@@ -130,7 +130,7 @@ class buy(commands.Cog):
                 overwrites=overwrite,
                 category=ctx.guild.get_channel(settings["open_category"]),
                 topic="Ticket management channel.",
-                reason="buy quicksetup",
+                reason="Ticketer quicksetup",
             )
             await self.config.guild(ctx.guild).channel.set(channel.id)
             await ctx.send("Channel for ticket management created.")
@@ -140,7 +140,7 @@ class buy(commands.Cog):
         else:
             await ctx.send("Something went wrong...")
 
-    @buy.command()
+    @ticketer.command()
     async def purge(self, ctx, are_you_sure: Optional[bool]):
         if are_you_sure:
             async with self.config.guild(ctx.guild).closed() as closed:
@@ -159,7 +159,7 @@ class buy(commands.Cog):
                         return
         else:
             await ctx.send(
-                f"This action will permanently delete all closed ticket channels.\nThis action is irreversible.\nConfirm with ``{ctx.clean_prefix}buy purge true``"
+                f"This action will permanently delete all closed ticket channels.\nThis action is irreversible.\nConfirm with ``{ctx.clean_prefix}ticketer purge true``"
             )
 
     @commands.group()
@@ -253,7 +253,7 @@ class buy(commands.Cog):
                 )
                 await ctx.send(embed=new_embed)
                 await ctx.send(
-                    "This cart can no longer be edited using buy.", delete_after=30
+                    "This cart can no longer be edited using ticketer.", delete_after=30
                 )
                 await ctx.channel.edit(
                     category=ctx.guild.get_channel(settings["closed_category"]),
