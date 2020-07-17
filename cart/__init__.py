@@ -1,4 +1,4 @@
-from .ticketer import Ticketer
+from .Ticketer import Ticketer
 
 
 async def setup(bot):
