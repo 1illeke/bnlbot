@@ -106,7 +106,8 @@ class DataUtils(commands.Cog):
     async def red_delete_data_for_user(self, **kwargs):
         return
 
-    @commands.command(aliases=["info", "i"])
+    
+    @commands.command(aliases=["memberinfo", "membinfo"])
     @commands.guild_only()
     @checks.bot_has_permissions(embed_links=True)
     async def uinfo(self, ctx, *, member: discord.Member = None):
@@ -121,6 +122,15 @@ class DataUtils(commands.Cog):
             em.add_field(name=_("Nickname"), value=member.nick)
         else:
             em.add_field(name=_("Name"), value=member.name)
+        em.add_field(
+            name=_("Client"),
+            value="📱: {}\n"
+            "🖥: {}\n"
+            "🌎: {}".format(
+                str(member.mobile_status).capitalize(),
+                str(member.desktop_status).capitalize(),
+                str(member.web_status).capitalize(),
+            ),
         )
         em.add_field(name=_("Joined server"), value=member.joined_at.strftime(self.TIME_FORMAT))
         em.add_field(name="ID", value=member.id)
@@ -133,17 +143,45 @@ class DataUtils(commands.Cog):
         if member.premium_since:
             em.add_field(
                 name=_("Boosted server"),
-                value=member.premium_since.strftime(self.TIME_FORMAT)
+                value=member.premium_since.strftime(self.TIME_FORMAT),
+            )
+        em.add_field(name=_("Bot?"), value=bool_emojify(member.bot))
+        em.add_field(name=_("System?"), value=bool_emojify(member.system))
+        em.add_field(
+            name=_("Server permissions"),
+            value="[{0}](https://fixator10.ru/permissions-calculator/?v={0})".format(
+                member.guild_permissions.value
+            ),
+        )
+        if member.voice:
+            em.add_field(name=_("In voice channel"), value=member.voice.channel.mention)
+        em.add_field(
+            name=_("Mention"),
+            value=f"{member.mention}\n{chat.inline(member.mention)}",
+            inline=False,
         )
         if roles := [role.name for role in member.roles if not role.is_default()]:
             em.add_field(
                 name=_("Roles"),
                 value=chat.escape("\n".join(roles), formatting=True),
                 inline=False,
+            )
+        if member.public_flags.value:
+            em.add_field(
+                name=_("Public flags"),
+                value="\n".join(
+                    [
+                        str(flag)[10:].replace("_", " ").capitalize()
+                        for flag in member.public_flags.all()
+                    ]
                 ),
                 inline=False,
             )
-        
+        em.set_image(url=member.avatar_url_as(static_format="png", size=4096))
+        # em.set_thumbnail(url=member.default_avatar_url)
+        await ctx.send(embed=em)
+
+
     @commands.command(aliases=["servinfo", "serv", "sv"])
     @commands.guild_only()
     @checks.bot_has_permissions(embed_links=True)
